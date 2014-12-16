@@ -1,11 +1,12 @@
-package com.coolweather.app.model;
+package com.coolweather.app.db;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.coolweather.app.db.CoolWeatherOpenHelper;
+import com.coolweather.app.model.City;
+import com.coolweather.app.model.County;
+import com.coolweather.app.model.Province;
 
-import android.R.integer;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
