@@ -17,7 +17,10 @@ import com.coolweather.app.util.Utility;
 import android.R.integer;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.style.TtsSpan;
 import android.view.View;
@@ -33,7 +36,7 @@ public class ChooseAreaActivity extends Activity {
 	public static final int LEVEL_PROVINCE = 0;
 	public static final int LEVEL_CITY = 1;
 	public static final int LEVEL_COUNTY = 2;
-	
+	private boolean isFromWeatherActivity;
 	private ProgressDialog progressDialog;
 	private TextView titleText;
 	private ListView listView;
@@ -53,6 +56,14 @@ public class ChooseAreaActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", true);
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		if (sharedPreferences.getBoolean("city_selected", false) && !isFromWeatherActivity) {
+			Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);
 		titleText = (TextView)findViewById(R.id.title_text);
@@ -66,12 +77,31 @@ public class ChooseAreaActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				// TODO Auto-generated method stub
-				if (currentLevel == LEVEL_PROVINCE) {
+				/*if (currentLevel == LEVEL_PROVINCE) {
 					selectedProvince = provinceList.get(position);
 					queryCities();
 				} else if (currentLevel == LEVEL_COUNTY) {
 					selectedCity = cityList.get(position);
 					queryCounties();
+				}*/
+				switch (currentLevel) {
+				case LEVEL_PROVINCE:
+					selectedProvince = provinceList.get(position);
+					queryCities();
+					break;
+				case LEVEL_CITY:
+					selectedCity = cityList.get(position);
+					queryCounties();
+					break;
+				case LEVEL_COUNTY:
+					String countyCode = countyList.get(position).getCountyCode();
+					Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+					intent.putExtra("county_code", countyCode);
+					startActivity(intent);
+					finish();
+					break;
+				default:
+					break;
 				}
 			}
 		});
@@ -220,6 +250,10 @@ public class ChooseAreaActivity extends Activity {
 		} else if (currentLevel == LEVEL_CITY) {
 			queryProvincies();
 		} else {
+			if (isFromWeatherActivity) {
+				Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+				startActivity(intent);
+			}
 			finish();
 		}
 	}
